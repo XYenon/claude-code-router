@@ -11,11 +11,10 @@ import {
   isServiceRunning,
   savePid,
 } from "./utils/processCheck";
-import { CONFIG_FILE } from "./constants";
+import { CONFIG_FILE, HOME_DIR } from "./constants";
 
 async function initializeClaudeConfig() {
-  const homeDir = homedir();
-  const configPath = join(homeDir, ".claude.json");
+  const configPath = join(process.env.CLAUDE_CONFIG_DIR ?? `${homedir()}/.claude`, "settings.json");
   if (!existsSync(configPath)) {
     const userID = Array.from(
       { length: 64 },
@@ -86,11 +85,7 @@ async function run(options: RunOptions = {}) {
       providers: config.Providers || config.providers,
       HOST: HOST,
       PORT: servicePort,
-      LOG_FILE: join(
-        homedir(),
-        ".claude-code-router",
-        "claude-code-router.log"
-      ),
+      LOG_FILE: join(HOME_DIR, "claude-code-router.log"),
     },
   });
   server.addHook("preHandler", apiKeyAuth(config));
